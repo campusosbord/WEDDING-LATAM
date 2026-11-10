@@ -16,6 +16,51 @@ const SHEET_URL = "https://docs.google.com/spreadsheets/d/1Wz-CqEcyzFKh0sb0OEnZR
  * EL ENRUTADOR (Define hojas y píxeles)
  * ========================================================================== */
 const RUTAS = {
+  "wedlat": { 
+    hoja: "wedlat",
+    prepararFila: (data, fecha) => [
+      data.nombre || "",
+      data.telefono || "",
+      data.email || "",
+      data.id || data.idDocument || "",
+      fecha
+    ],
+    enviarMeta: true,
+    pixel: LLC_PIXEL_ID,
+    token: LLC_ACCESS_TOKEN,
+    metaNombre: "Curso Ejecutivo Wedding Planner LATAM",
+    metaCategoria: "Formacion Ejecutiva",
+    valorDefecto: 120.00,
+    metaEvento: "Purchase"
+  },
+  "weddinglat": { 
+    hoja: "wedlat",
+    prepararFila: (data, fecha) => [
+      data.nombre || "",
+      data.telefono || "",
+      data.email || "",
+      data.id || data.idDocument || "",
+      fecha
+    ],
+    enviarMeta: true,
+    pixel: LLC_PIXEL_ID,
+    token: LLC_ACCESS_TOKEN,
+    metaNombre: "Curso Ejecutivo Wedding Planner LATAM",
+    metaCategoria: "Formacion Ejecutiva",
+    valorDefecto: 120.00,
+    metaEvento: "Purchase"
+  },
+  "weddinglat_lead": { 
+    hoja: "grupolat",
+    prepararFila: (data, fecha) => [data.nombre || "", data.telefono || "", fecha],
+    enviarMeta: true,
+    pixel: LLC_PIXEL_ID,
+    token: LLC_ACCESS_TOKEN,
+    metaNombre: "Lead Curso Ejecutivo Wedding Planner LATAM",
+    metaCategoria: "Lead",
+    valorDefecto: 0.00,
+    metaEvento: "Lead"
+  },
   "weddingusa": { 
     hoja: "weddingusa",
     prepararFila: (data, fecha) => [data.nombre || "", data.telefono || "", data.email || "", fecha],
@@ -48,6 +93,39 @@ const RUTAS = {
     metaCategoria: "Lead",
     valorDefecto: 0.00,
     metaEvento: "Lead"
+  },
+  "intcol": { 
+    hoja: "intcol",
+    prepararFila: (data, fecha) => [data.nombre || "", data.telefono || "", data.email || "", fecha],
+    enviarMeta: true,
+    pixel: LLC_PIXEL_ID,
+    token: LLC_ACCESS_TOKEN,
+    metaNombre: "Master Interiorismo Colombia",
+    metaCategoria: "Formacion Ejecutiva",
+    valorDefecto: 147.00,
+    metaEvento: "Purchase"
+  },
+  "intcol_lead": { 
+    hoja: "grupo_intcol",
+    prepararFila: (data, fecha) => [data.nombre || "", data.telefono || "", fecha],
+    enviarMeta: true,
+    pixel: LLC_PIXEL_ID,
+    token: LLC_ACCESS_TOKEN,
+    metaNombre: "Lead Master Interiorismo Colombia",
+    metaCategoria: "Lead",
+    valorDefecto: 0.00,
+    metaEvento: "Lead"
+  },
+  "intlat": {
+    hoja: "intlat",
+    prepararFila: function(data, fecha) { return [data.nombre || "", data.telefono || "", data.email || "", fecha]; },
+    enviarMeta: true,
+    pixel: LLC_PIXEL_ID,
+    token: LLC_ACCESS_TOKEN,
+    metaNombre: "Diplomado Internacional en Interiorismo LATAM",
+    metaCategoria: "Formacion Ejecutiva",
+    valorDefecto: 120.00,
+    metaEvento: "Purchase"
   },
   "enfermeria": { 
     hoja: "datausaenfermeria",
@@ -92,6 +170,17 @@ const RUTAS = {
     valorDefecto: 120.00,
     metaEvento: "Purchase"
   },
+  "exteriorismo": { 
+    hoja: "exteriorismo",
+    prepararFila: (data, fecha) => [data.nombre || "", data.telefono || "", data.email || "", fecha, data.plan || "", data.metodo || ""],
+    enviarMeta: true,
+    pixel: VZLA_PIXEL_ID,
+    token: VZLA_ACCESS_TOKEN,
+    metaNombre: "Master Diseño de Exteriores, Paisajismo y Render 3D",
+    metaCategoria: "Formacion Ejecutiva",
+    valorDefecto: 120.00,
+    metaEvento: "Purchase"
+  },
   "datavzlaenfermeria": {
     hoja: "datavzlaenfermeria",
     prepararFila: (data, fecha) => [data.nombre || "", data.telefono || "", data.email || "", fecha],
@@ -127,6 +216,7 @@ function doPost(e) {
       nombre: obtenerCampo(data, ["nombre", "name", "first_name", "buyer_name", "customer_name", "billing_first_name", "full_name"]),
       telefono: obtenerCampo(data, ["telefono", "phone", "tel", "checkout_phone", "billing_phone", "phone_number", "celular", "mobile"]),
       email: obtenerCampo(data, ["email", "mail", "buyer_email", "customer_email", "billing_email"]),
+      id: obtenerCampo(data, ["id", "idDocument", "dni", "cedula", "documento", "identification", "identificacion"]),
       plan: obtenerCampo(data, ["plan", "product", "producto", "item", "plan_name", "product_name", "offer"]),
       metodo: obtenerCampo(data, ["metodo", "metodo_pago", "payment_method", "payment", "gateway", "pay_mode"])
     });
@@ -290,8 +380,9 @@ function PROBAR_ENVIO_MANUAL() {
     nombre: "Prueba Manual Compra",
     email: "test_compra@gmail.com",
     telefono: "1234567890",
-    origen: "datavzlaenfermeria",
-    page_url: "https://enfermeria.osbord.com/venezuela"
+    id: "V-12345678",
+    origen: "wedlat",
+    page_url: "https://weddingplanner.osbord.com/latam"
   };
-  enviarAPI_Meta(datosPrueba, RUTAS["datavzlaenfermeria"]);
+  enviarAPI_Meta(datosPrueba, RUTAS["wedlat"]);
 }

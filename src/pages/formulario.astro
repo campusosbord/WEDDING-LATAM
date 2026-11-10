@@ -30,6 +30,9 @@ import { User, Phone } from '@lucide/astro';
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '1523091419179735');
     fbq('track', 'PageView');
+
+    // Generar event_id global para el lead
+    window.leadEventId = "lead_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
   </script>
   <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=1523091419179735&ev=PageView&noscript=1"
@@ -234,19 +237,33 @@ import { User, Phone } from '@lucide/astro';
           <div
             x-data="{
               nombreUsuario: '',
-              whatsappUsuario: '+57',
+              whatsappUsuario: '+',
               sending: false,
               get isFormValid() {
-                return this.nombreUsuario.trim().length > 0 && this.whatsappUsuario.trim().length > 3 && this.whatsappUsuario.trim() !== '+57';
+                return this.nombreUsuario.trim().length > 0 && this.whatsappUsuario.trim().length > 6;
               },
               async handleSubmit() {
                 if (!this.isFormValid || this.sending) return;
                 this.sending = true;
+
+                // Meta Pixel Client Lead Event with same event_id
+                try {
+                  if (window.fbq) {
+                    fbq('track', 'Lead', {
+                      content_name: 'Lead Curso Ejecutivo Wedding Planner Latinoamérica',
+                      content_category: 'Lead',
+                      value: 0.00,
+                      currency: 'USD'
+                    }, { eventID: window.leadEventId });
+                  }
+                } catch(err) { console.warn('FB Pixel Lead Error', err); }
+
                 const payload = JSON.stringify({
                   nombre: this.nombreUsuario.trim(),
                   telefono: this.whatsappUsuario.trim(),
                   email: 'Lead_WhatsApp@noemail.com',
-                  origen: 'weddingcol_lead',
+                  origen: 'weddinglat_lead',
+                  event_id: window.leadEventId,
                   page_url: window.location.href,
                   user_agent: navigator.userAgent
                 });
@@ -283,14 +300,14 @@ import { User, Phone } from '@lucide/astro';
 
             <!-- WhatsApp -->
             <div class="form-group">
-              <label for="inp_whatsapp" class="form-label">WhatsApp Colombia (+57)</label>
+              <label for="inp_whatsapp" class="form-label">WhatsApp (con código de país)</label>
               <div class="input-wrap">
                 <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                 <input
                   id="inp_whatsapp"
                   type="tel"
                   x-model="whatsappUsuario"
-                  placeholder="+573001234567"
+                  placeholder="+54 9 11... / +57... / +52..."
                   class="form-input"
                   autocomplete="tel"
                 />

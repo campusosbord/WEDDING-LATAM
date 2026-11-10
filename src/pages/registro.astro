@@ -64,16 +64,23 @@ import { CheckCircle, ShieldCheck, User, Mail, FileText, Phone } from '@lucide/a
                 const params = new URLSearchParams(window.location.search);
                 const planParam = params.get('plan');
                 let planName = 'Plan de Pago (Confirmar con soporte)';
-                if (planParam === 'full') planName = 'Pago Único ($147 USD)';
-                if (planParam === 'finance1') planName = 'Financiamiento de 2 Cuotas ($79 USD)';
-                if (planParam === 'finance2') planName = 'Financiamiento de 3 Cuotas ($55 USD)';
+                if (planParam === 'full') planName = 'Pago Único ($120 USD)';
+                if (planParam === 'finance1') planName = 'Financiamiento de 2 Cuotas ($60 USD)';
+                if (planParam === 'finance2') planName = 'Financiamiento de 3 Cuotas ($40 USD)';
                 
-                // Enviar datos a Google Sheets (Ruta: weddingcol)
+                // Usar el event_id global generado al cargar la página (misma variable que usa el Pixel)
+                const eventId = window.purchaseEventId;
+
+                // Enviar datos a Google Sheets (Ruta / Pestaña: wedlat)
+                // Columnas: NOMBRE Y APELLIDOS | Teléfono | Mail | Id | FECHA
                 const payload = JSON.stringify({
                   nombre: this.nombre.trim(),
                   telefono: this.telefono.trim(),
                   email: this.email.trim(),
-                  origen: 'weddingcol',
+                  id: this.idDocument.trim(),
+                  idDocument: this.idDocument.trim(),
+                  origen: 'wedlat',
+                  event_id: eventId,
                   page_url: window.location.href,
                   user_agent: navigator.userAgent
                 });
@@ -93,7 +100,7 @@ import { CheckCircle, ShieldCheck, User, Mail, FileText, Phone } from '@lucide/a
                   console.error('[Google Sheets] Error al registrar datos:', e);
                 }
                 
-                const message = `Hola, acabo de realizar mi pago para el *CURSO EJECUTIVO EN ORGANIZACIÓN DE EVENTOS & WEDDING PLANNER PARA COLOMBIA* y quiero completar mi registro.\n\n` +
+                const message = `Hola, acabo de realizar mi pago para el *CURSO EJECUTIVO EN ORGANIZACIÓN DE EVENTOS & WEDDING PLANNER* y quiero completar mi registro.\n\n` +
                                 `*DATOS DEL ESTUDIANTE:*\n` +
                                 `• *Nombre completo:* ${this.nombre.trim()}\n` +
                                 `• *Correo electrónico:* ${this.email.trim()}\n` +
@@ -207,24 +214,36 @@ import { CheckCircle, ShieldCheck, User, Mail, FileText, Phone } from '@lucide/a
 
   <Footer />
 
+  <!-- Client-side Conversion Tracking: genera el event_id globalmente al instante de carga -->
+  <script is:inline>
+    // Ejecutar INMEDIATAMENTE (antes de DOMContentLoaded) para que Alpine y el Pixel compartan el mismo ID
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+      // Si viene session_id de Stripe lo usamos; si no, generamos un ID propio
+      window.purchaseEventId = 'purchase_' + (sessionId || (Date.now() + '_' + Math.random().toString(36).slice(2, 8)));
+      // Exponer sessionId globalmente para que el script de tracking posterior lo reutilice
+      window.stripeSessionId = sessionId;
+    })();
+  </script>
+
   <!-- Client-side Conversion Tracking Script -->
   <script is:inline>
     document.addEventListener('DOMContentLoaded', () => {
       // 1. Parse URL parameters to fetch plan type and session ID
-      const params = new URLSearchParams(window.location.search);
-      const plan = params.get('plan');
-      const sessionId = params.get('session_id');
+      const plan = new URLSearchParams(window.location.search).get('plan');
+      const sessionId = window.stripeSessionId;
 
       if (plan && sessionId) {
-        // 2. Map plan identifier to transaction price
-        let value = 147.00;
-        let planFriendlyName = 'Pago Único';
+        // 2. Map plan identifier to transaction price (USD)
+        let value = 120.00;
+        let planFriendlyName = 'Pago Único ($120 USD)';
         if (plan === 'finance1') {
-          value = 79.00;
-          planFriendlyName = '2 Cuotas Mensuales';
+          value = 60.00;
+          planFriendlyName = 'Financiamiento de 2 Cuotas ($60 USD)';
         } else if (plan === 'finance2') {
-          value = 55.00;
-          planFriendlyName = '3 Cuotas Mensuales';
+          value = 40.00;
+          planFriendlyName = 'Financiamiento de 3 Cuotas ($40 USD)';
         }
 
         // 3. Deduplicate tracking calls per Session ID using LocalStorage
@@ -235,6 +254,7 @@ import { CheckCircle, ShieldCheck, User, Mail, FileText, Phone } from '@lucide/a
         }
 
         // 4. Report Meta Pixel Purchase Event
+        const eventId = window.purchaseEventId;
         if (window.fbq) {
           fbq('track', 'Purchase', {
             value: value,
@@ -243,7 +263,7 @@ import { CheckCircle, ShieldCheck, User, Mail, FileText, Phone } from '@lucide/a
             content_category: 'Educación',
             content_ids: [plan],
             content_type: 'product'
-          });
+          }, { eventID: eventId });
           console.log('[Tracking] Éxito: Compra reportada a Meta Pixel:', { value, plan });
         } else {
           console.warn('[Tracking] Advertencia: fbq no está inicializado.');

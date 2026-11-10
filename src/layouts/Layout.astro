@@ -12,7 +12,7 @@ interface Props {
 	description?: string;
 }
 
-const { title, description = "Curso Ejecutivo en Organización de Eventos & Wedding Planner - Instituto Osbord" } = Astro.props;
+const { title, description = "Curso Ejecutivo en Organización de Eventos & Wedding Planner con Aval Americano. Certifícate 100% Online desde Latinoamérica con Instituto Osbord." } = Astro.props;
 const pathname = new URL(Astro.request.url).pathname;
 const isCheckout = pathname === '/checkout' || pathname === '/checkout/' || pathname === '/registro' || pathname === '/registro/' || pathname === '/formulario' || pathname === '/formulario/'; // Normalize check
 ---
@@ -27,6 +27,13 @@ const isCheckout = pathname === '/checkout' || pathname === '/checkout/' || path
 		<title>{title}</title>
 		<meta name="generator" content={Astro.generator} />
 		<meta name="google-site-verification" content="EanYHzohzwMXIO-YxPw2MQP0hqSyQXgNYj3NDlW0i24" />
+
+		<!-- Open Graph / Meta & WhatsApp Share Preview -->
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content="/images/diploma.webp" />
+		<meta property="og:locale" content="es_LA" />
 
 		<!-- Favicon -->
 		<link rel="icon" type="image/webp" href="/images/logofaviconosbord.webp" />
@@ -110,12 +117,12 @@ const isCheckout = pathname === '/checkout' || pathname === '/checkout/' || path
 			if (window.gtag) {
 				gtag('event', 'begin_checkout', {
 					currency: 'USD',
-					value: 297.00,
+					value: 120.00,
 					items: [{
 						item_id: 'master_wedding_planner',
 						item_name: 'Inscripción Curso Wedding Planner',
 						item_category: 'Educación',
-						price: 297.00,
+						price: 120.00,
 						quantity: 1
 					}]
 				});
